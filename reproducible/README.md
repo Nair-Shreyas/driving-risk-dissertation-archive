@@ -14,7 +14,7 @@ archived notebooks, with a few bug fixes. See [`CHANGES.md`](CHANGES.md).
 
 ## Option A — Demo (no NVIDIA data needed)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/driving-risk-dissertation-archive/blob/main/reproducible/demo/demo_pipeline.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/demo/demo_pipeline.ipynb)
 
 1. Click **Open in Colab**.
 2. **Runtime → Run all.**
@@ -39,11 +39,11 @@ jupyter notebook reproducible/demo/demo_pipeline.ipynb
 
 | # | Notebook | Open |
 |---|---|---|
-| 1 | Data preparation | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/driving-risk-dissertation-archive/blob/main/reproducible/notebooks/1_data_preparation.ipynb) |
-| 2 | Ego-motion features | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/driving-risk-dissertation-archive/blob/main/reproducible/notebooks/2_ego_motion_features.ipynb) |
-| 3 | Visual features (GPU) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/driving-risk-dissertation-archive/blob/main/reproducible/notebooks/3_visual_features.ipynb) |
-| 4 | Dataset assembly | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/driving-risk-dissertation-archive/blob/main/reproducible/notebooks/4_dataset_assembly.ipynb) |
-| 5 | Modelling and evaluation (GPU) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/driving-risk-dissertation-archive/blob/main/reproducible/notebooks/5_modelling_and_evaluation.ipynb) |
+| 1 | Data preparation | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/notebooks/1_data_preparation.ipynb) |
+| 2 | Ego-motion features | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/notebooks/2_ego_motion_features.ipynb) |
+| 3 | Visual features (GPU) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/notebooks/3_visual_features.ipynb) |
+| 4 | Dataset assembly | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/notebooks/4_dataset_assembly.ipynb) |
+| 5 | Modelling and evaluation (GPU) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/notebooks/5_modelling_and_evaluation.ipynb) |
 
 1. **Get data access.** Sign in to [Hugging Face](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles),
    accept NVIDIA's licence on the dataset page, and create a read token. On Colab, add it as a secret named
