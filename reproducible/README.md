@@ -58,6 +58,3 @@ For a quick end-to-end check before the full run, set `FAST_MODE = True` in Note
 
 > **Data licence.** The NVIDIA dataset is licensed by NVIDIA and must not be redistributed. Keep the
 > files the notebooks create in your own storage; do not commit them to a public repository.
-
-> **Colab buttons and private repositories.** While this repository is private, Colab asks you to sign in
-> to GitHub and tick *Include private repos* before it can open the notebooks.
