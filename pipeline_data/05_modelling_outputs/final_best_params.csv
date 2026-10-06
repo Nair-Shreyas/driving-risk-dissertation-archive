@@ -1,0 +1,2 @@
+subsample,reg_lambda,reg_alpha,n_estimators,min_child_weight,max_depth,learning_rate,gamma,colsample_bytree
+0.85,4.0,0.01,700,2,5,0.05,0.3,0.4

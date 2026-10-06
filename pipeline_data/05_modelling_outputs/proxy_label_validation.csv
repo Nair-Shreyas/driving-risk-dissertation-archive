@@ -1,0 +1,8 @@
+Feature,High Risk Mean,Low Risk Mean,Difference,Direction,Mann-Whitney U,p-value,Significant
+avg_speed,14.273,10.3103,3.9628,Higher in High Risk,52553.0,0.001661,Yes ✅
+max_speed,18.4354,13.4271,5.0083,Higher in High Risk,58857.0,0.0,Yes ✅
+avg_jerk,-0.0017,0.0027,-0.0044,Lower in High Risk,48215.0,0.20553,No ❌
+max_jerk,42.6895,39.3517,3.3378,Higher in High Risk,54493.0,3.5e-05,Yes ✅
+hard_braking_events,9.0,1.3787,7.6213,Higher in High Risk,64403.5,0.0,Yes ✅
+is_night,0.4024,0.7295,-0.3271,Lower in High Risk,30476.5,0.0,Yes ✅
+is_peak_hour,0.503,0.1399,0.363,Higher in High Risk,61734.5,0.0,Yes ✅

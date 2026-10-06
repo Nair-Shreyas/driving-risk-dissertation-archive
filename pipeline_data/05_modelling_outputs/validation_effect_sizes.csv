@@ -1,0 +1,13 @@
+Feature,Cohen's d,Direction,Effect Size,p-value
+aggressive_score,1.1836,Higher in High Risk,Large,0.0
+hard_braking_events,1.152,Higher in High Risk,Large,0.0
+is_peak_hour,0.9316,Higher in High Risk,Large,0.0
+max_speed,0.7316,Higher in High Risk,Medium,0.0
+is_night,0.7168,Lower in High Risk,Medium,0.0
+avg_speed,0.5221,Higher in High Risk,Medium,0.001661
+avg_acceleration,0.3966,Lower in High Risk,Small,4.4e-05
+max_jerk,0.3133,Higher in High Risk,Small,3.5e-05
+object_density,0.1566,Lower in High Risk,Negligible,0.05256
+is_poor_lighting,0.1137,Higher in High Risk,Negligible,0.197762
+env_complexity,0.097,Lower in High Risk,Negligible,0.04249
+avg_jerk,0.0204,Lower in High Risk,Negligible,0.20553

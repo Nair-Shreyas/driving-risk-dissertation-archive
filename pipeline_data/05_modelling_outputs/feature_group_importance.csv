@@ -1,0 +1,8 @@
+Feature Group,Total Importance
+Ego / Behaviour Features,0.2806322
+Context / Time Features,0.23671997
+ViT Features,0.14373524
+CNN Features,0.1382396
+Engineered Features,0.095535226
+YOLO Object Features,0.08760867
+Basic Visual Features,0.017529102

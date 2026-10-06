@@ -1,0 +1,4 @@
+Phase,Iterations,CV Folds,Best CV ROC-AUC,Train-CV Gap
+Phase 1 (Baseline),30,3,0.9399,N/A
+Phase 2 (Expanded),60,5,0.9464,0.0536
+Phase 3 (Regularised),80,5,0.946,0.054

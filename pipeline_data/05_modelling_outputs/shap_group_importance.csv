@@ -1,0 +1,8 @@
+Feature Group,Mean |SHAP|
+Ego / Behaviour,3.9567475
+Context / Time,2.0246167
+ViT Features,1.0166016
+CNN Features,0.9912687
+Engineered,0.70804036
+YOLO Object Detection,0.28228408
+Basic Visual,0.07384668

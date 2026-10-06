@@ -1,0 +1,10 @@
+Feature,High Risk Mean,Low Risk Mean,Cohen's d,Effect Size,p-value,Significant
+cnn_feature_0,0.7138,-0.6365,0.1027,Negligible,0.852407,No ❌
+cnn_feature_1,1.149,2.537,-0.1173,Negligible,0.292816,No ❌
+cnn_feature_2,-1.9991,-1.7948,-0.0208,Negligible,0.478124,No ❌
+vit_feature_0,0.9083,-0.1078,0.1194,Negligible,0.396955,No ❌
+vit_feature_1,-1.1406,-1.3778,0.0332,Negligible,0.808836,No ❌
+vit_feature_2,0.0465,1.3015,-0.2315,Small,0.002895,Yes ✅
+car_count,3.0533,3.959,-0.2444,Small,0.002856,Yes ✅
+person_count,0.4142,0.4422,-0.0195,Negligible,0.464372,No ❌
+total_objects,5.1657,5.903,-0.1384,Negligible,0.037476,Yes ✅

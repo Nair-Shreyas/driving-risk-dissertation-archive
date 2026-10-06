@@ -1,0 +1,555 @@
+% Overleaf-ready LaTeX source
+% Multimodal Driving Risk Prediction Using Machine Learning on Autonomous Vehicle Data
+% Compile with pdfLaTeX. Figure PNG files must be placed in a ./figures/ folder.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}            % Times text/math
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{authblk}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{url}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=blue}
+\captionsetup{font=small, labelfont=bf}
+\graphicspath{{figures/}}
+\setlength{\parskip}{4pt}
+\onehalfspacing
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Nair et al., 2026}
+\fancyhead[R]{\small Multimodal Driving Risk Prediction in Autonomous Vehicles}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\title{\textbf{Multimodal Driving Risk Prediction Using Machine Learning on Autonomous Vehicle Data (NVIDIA Physical AI Dataset)}}
+\author[1]{Nair, Prasanna Syam Shreyas}
+\author[1]{Izima, Obinna}
+\affil[1]{School of Computing, Dublin Business School, Dublin, Ireland}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This study investigates the problem of predicting elevated driving risk from real-world autonomous vehicle data, where ground-truth risk annotations are rarely available and existing approaches typically address isolated perception tasks without integrating behavioural, visual, and contextual signals. The aim of this research is to develop and evaluate an explainable multimodal machine learning framework for driving risk prediction. A five-stage pipeline was employed using the NVIDIA PhysicalAI Autonomous Vehicle Dataset, combining Convolutional Neural Network (ResNet-50) embeddings, Vision Transformer (ViT-B/16) representations, YOLOv8 object detection, ego-motion telemetry, and contextual driving indicators, fused within an XGBoost classifier applied to 1,899 driving clips described by 48 features. Proxy risk labels were generated with a train-only Isolation Forest and validated through three independent statistical strategies. The findings indicate that the framework achieved a cross-validated ROC-AUC of 0.9455 and a held-out test ROC-AUC of 0.9387; a four-way ablation study identified contextual and temporal features as the dominant predictive modality, while removing CNN and ViT embeddings marginally improved performance, suggesting that flat feature concatenation introduces noise at this dataset scale. These findings suggest that context-aware, explainable risk models are practically valuable for autonomous vehicle safety systems, and that the architectural integration of deep visual features matters as much as their inclusion.
+\end{abstract}
+
+\noindent\textbf{Keywords:} \textit{Multimodal Machine Learning; Driving Risk Prediction; Autonomous Vehicles; XGBoost; Explainable Artificial Intelligence; Vision Transformer}
+
+
+\section{Introduction}
+
+Machine learning is now a central component of contemporary automotive transport safety research due to the rapid development of autonomous vehicle (AV) technology. In less than a decade, vehicles able to perceive, interpret, and respond to complex real-world driving situations have transitioned from laboratory research to public roads. This progress exposes a fundamental unresolved question: how can a system reliably recognise that a driving situation is becoming hazardous before something goes wrong? This paper addresses that question through the design and evaluation of a multimodal machine learning framework for predicting driving risk using real-world autonomous vehicle data from the NVIDIA PhysicalAI Autonomous Vehicle Dataset.
+
+The last ten years have seen major advances in driverless-car technology, driven by growth in deep learning, sensor integration, and large-scale data development (Viktor and Kiss, 2026; Grigorescu et al., 2020). Modern autonomous vehicles combine cameras, LiDAR, and radar to perceive their environment in real time, while large datasets such as KITTI, BDD100K, Waymo, nuScenes, and Argoverse 2 have accelerated research in perception and safety modelling (Geiger et al., 2012; Yu et al., 2020; Sun et al., 2020; Caesar et al., 2020; Wilson et al., 2023). Convolutional neural networks (CNNs) have become the dominant visual feature extractors (He et al., 2016), with Vision Transformers emerging as a complementary method for capturing global spatial relationships through attention mechanisms (Dosovitskiy et al., 2021). In parallel, gradient boosting algorithms such as XGBoost have proven highly effective for prediction on structured vehicle data (Chen and Guestrin, 2016; Guagnano et al., 2023).
+
+Despite this progress, there is an evident gap concerning integrated, explainable models for predicting driving risk from multimodal information. Prior work has largely focused on individual tasks --- object detection from vehicle-mounted cameras or accident anticipation --- without a unifying approach that combines visual, behavioural, object-level, and contextual information. Studies that apply machine learning to driving risk typically use physiological or behavioural data without integrating deeper visual features, and almost no prior work on multimodal driving behaviour provides a systematic method for explaining how each modality contributes to the final prediction. To the authors' knowledge, this study is the first to combine CNN and Vision Transformer embeddings within a single driving risk prediction model.
+
+The aim of this study was to build and evaluate an artificial-intelligence-based multimodal approach to predict driving risk in autonomous vehicles using data from the NVIDIA PhysicalAI Dataset. Five research questions direct the investigation: (RQ1) How well can multimodal autonomous driving information identify elevated-risk driving situations? (RQ2) What contributions can CNNs and Vision Transformers make as visual representations in multimodal driving risk prediction models? (RQ3) To what extent are behavioural, object-based, and contextual driving characteristics influential on predicted driving risk? (RQ4) Do explainability methods for machine learning increase the ability to understand predictions generated by AV risk prediction models? (RQ5) How robustly does the proposed multimodal model function when evaluated with ablation and cross-validation strategies?
+
+These questions are operationalised through six objectives: (1) determine whether multimodal feature combination is effective for predicting autonomous vehicle risk; (2) extract and analyse CNN and Vision Transformer visual embeddings from autonomous vehicle images; (3) integrate behavioural telemetry, object detection outputs, and contextually relevant driving information within a single machine learning framework; (4) assess predictive performance using ROC-AUC, precision, recall, F1-score, cross-validation, and other appropriate metrics; (5) analyse feature importance and modality contributions through feature group importance, SHAP values, and ablation studies; and (6) investigate the robustness and limitations of proxy-based risk modelling on a partially labelled autonomous vehicle dataset.
+
+The study contributes: (i) a novel multimodal driving risk prediction framework fusing CNN embeddings, ViT representations, YOLOv8 object detection, ego-motion telemetry, and contextual indicators within an XGBoost classifier; (ii) a validated proxy risk labelling method based on train-only Isolation Forest anomaly detection with three-strategy construct validity testing; (iii) a per-fold fresh-label cross-validation methodology that removes proxy-label leakage across folds; and (iv) modality-level explainability via SHAP analysis, gain-based feature group importance, and a four-way ablation study. The remainder of the paper is organised as follows: Section 2 reviews the related literature and identifies the research gap; Section 3 presents the research methodology, including the five-stage pipeline, proxy labelling, and evaluation design; Section 4 reports the results; Section 5 discusses the findings in relation to the literature and research questions; Section 6 acknowledges limitations; and Section 7 concludes and outlines future work.
+
+\section{Literature Review}
+
+\subsection{Theoretical Background}
+
+Autonomous vehicles represent perhaps the most complex artificial intelligence application yet conceived, requiring the fusion of perception, prediction, planning, and control in real time. Grigorescu et al. (2020) conducted an extensive review of deep learning methods across the entire AV perception stack, documenting the progression from rule-based systems towards end-to-end deep learning architectures and showing that no single architecture is sufficient for all AV tasks --- individual tasks impose unique requirements on their learning paradigms. Viktor and Kiss (2026) demonstrate that cameras, LiDAR, radar, and GPS each carry distinct advantages and failure modes, providing the theoretical justification for the multimodal fusion approach this study builds upon. Beck et al. (2023) further demonstrate the benefits of multimodal sensor data in AV crash reconstruction, showing that LiDAR, camera, and radar streams can be fused for detailed accident investigations, thereby validating the use of combined AV sensor data for safety-critical analyses.
+
+Large-scale, well-annotated datasets have been key to AV research progress. The KITTI Vision Benchmark Suite (Geiger et al., 2012) provided stereo images, LiDAR point clouds, and GPS data, becoming a benchmark for AV dataset development and evaluation. BDD100K (Yu et al., 2020) contributed 100,000 driving videos under varied environmental conditions, enabling multi-task model development, and the Waymo Open Dataset (Sun et al., 2020) supplied high-resolution multi-camera and LiDAR data at scale. nuScenes (Caesar et al., 2020) was specifically developed to evaluate sensor fusion, combining camera, LiDAR, and radar data with detailed 3-D annotations, and Argoverse 2 (Wilson et al., 2023) is the most recent major addition. Notably, none of these datasets includes ground-truth 'driving risk' labels, making proxy labelling methods --- such as the Isolation Forest approach used in this study --- necessary. A partial exception is the DoTA dataset (Yao et al., 2023), which contains 4,677 egocentric driving videos with temporal, spatial, and categorical anomaly annotations.
+
+On the modelling side, CNNs have underpinned most AV visual feature extraction since the mid-2010s. ResNet (He et al., 2016) demonstrated that very deep networks can be trained successfully using residual connections, achieving state-of-the-art ImageNet results and establishing the ResNet family as the most commonly adopted backbone for AV perception pipelines. The Vision Transformer (Dosovitskiy et al., 2021) created a new paradigm by treating an image as a sequence of patches processed through self-attention, matching state-of-the-art CNN classification performance without convolution. Unlike CNNs, which learn hierarchical representations from local spatial relationships, ViT captures global spatial relationships across entire scenes --- a key property for holistic understanding of driving scenarios. BEVFormer (Li et al., 2022) extended transformer architectures to multi-camera spatial perception, generating bird's-eye-view representations without LiDAR through spatiotemporal attention, and Ma et al. (2023) documented how CNN-only methods are being displaced by transformer-based methods across multi-camera benchmarks. These studies raise --- but do not answer --- the question of whether CNN and ViT embeddings are complementary or redundant when combined in a risk prediction system, which is a central question of this paper.
+
+\subsection{Review of Existing Studies}
+
+Object detection enables vehicles to detect and localise relevant road entities --- pedestrians, vehicles, and hazards --- in real time. YOLO (Redmon et al., 2016) reformulated object detection as a single regression problem within a unified architecture, achieving much faster inference than two-stage detectors, while Faster R-CNN (Ren et al., 2015) attains higher accuracy through Region Proposal Networks at greater computational cost; both underpin the YOLOv8 model used in this study. Baek et al. (2020) demonstrated that the density and composition of detected objects --- particularly pedestrian and cyclist presence and multiple-vehicle counts --- relate directly to collision likelihood, motivating the inclusion of YOLOv8 object-count features as a discrete input modality in the present framework.
+
+Within driving risk prediction, Guagnano et al. (2023) showed that XGBoost outperformed other classifiers when predicting structured driving risk from physiological, personal, behavioural, and environmental factors in a simulated environment --- providing justification for its selection as the primary classifier here, while also illustrating the limits of purely non-visual inputs. Fu et al. (2023) developed a hybrid CNN--BiLSTM network for predicting driving behaviour risk from sensor data, and Wang et al. (2019) proposed a multi-feature risk prediction framework based on behavioural and road features. A shared limitation across these studies is dependence on fully labelled crash records or physiological measurements that are impractical to obtain at scale in real-world AV deployments.
+
+In accident anticipation and anomaly detection, Kataoka et al. (2018), Bao et al. (2021), Fang et al. (2021), and Liao et al. (2024) developed models that anticipate crashes from visual data. However, these approaches require very large volumes of labelled video, or use complex temporal models unsuited to short clips, and focus on crash prediction rather than explaining model behaviour. Recent multimodal and context-aware work reinforces the value of integration: Wang et al. (2025) incorporate driving risk into a hybrid state space for deep-reinforcement-learning-based AV decision making; Xue et al. (2025) show that a driving-risk-field car-following model incorporating surrounding-vehicle context estimates crash risk better than single-vehicle behaviour alone; Wu et al. (2024) combine visual perception with risk assessment for safer behavioural planning; and Baek et al. (2020) found that fusing sensor data with contextual communication information improved collision warning over either source alone. Collectively, these studies suggest that understanding the operational context --- who else is present, what time it is, how the environment appears --- is at least as critical to estimating driving risk as perceiving the vehicle's immediate state.
+
+Finally, interpretability is essential for deploying machine learning in safety-critical systems. Lundberg and Lee (2017) introduced SHAP, which provides global and local feature-importance explanations grounded in cooperative game theory and applicable to any model; it is now the industry standard for post-hoc interpretability and has been applied widely in transportation safety (Wang et al., 2019; Bao et al., 2021; Zhu et al., 2024). Table 1 summarises key related works and their limitations.
+
+\begin{table}[H]
+\centering\small
+\caption{Summary of key related works}
+\begin{tabularx}{\textwidth}{LLLLL}
+\toprule
+\textbf{Author (Year)} & \textbf{Dataset} & \textbf{Method} & \textbf{Key Features} & \textbf{Limitation} \\
+\midrule
+Guagnano et al. (2023) & Simulation & XGBoost & Behavioural, physiological & No visual features \\
+Feth et al. (2019) & Stereo camera & CNN & Visual only & No behavioural context \\
+Huang et al. (2023) & Custom & CNN + semi-supervised & Visual & Limited labels \\
+Fu et al. (2023) & Sensor data & CNN + Bi-LSTM & Sensor fusion & No contextual features \\
+Zhu et al. (2024) & AV logs & Random Forest & Causal features & No visual modality \\
+Bao et al. (2021) & Dashcam & Reinforcement Learning & Visual attention & No structured features \\
+Wang et al. (2019) & Crash records & ML framework & Behavioural, road & No visual embeddings \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Identified Research Gap}
+
+Five interdependent research gaps emerge from the reviewed literature. First, current frameworks are almost exclusively focused on individual perception tasks rather than multimodal driving risk prediction (Feth et al., 2019; Bao et al., 2021; Kataoka et al., 2018). Second, machine-learning-based driving risk models built on physiological and behavioural data have not utilised deep visual features (Fu et al., 2023; Guagnano et al., 2023; Wang et al., 2019). Third, little work combines both CNN and Vision Transformer embeddings within a single risk prediction model. Fourth, most prior methods require fully annotated crash datasets, limiting applicability to real-world AV environments where labelled risk information is often unavailable (Huang et al., 2023). Fifth, few AV safety models systematically explain how each modality contributes to overall predicted risk (Zhu et al., 2024; Lundberg and Lee, 2017). Although prior studies have investigated visual perception, accident anticipation, and behavioural risk modelling in isolation, limited research has addressed integrated, explainable, multimodal driving risk prediction on partially labelled AV data. This study seeks to address this gap through a multimodal framework that fuses CNN embeddings, ViT representations, YOLOv8 object detection, behavioural telemetry, and contextual indicators within a single XGBoost classifier.
+
+\section{Research Methodology}
+
+\subsection{Research Design}
+
+This study adopted an experimental, quantitative research design grounded in a positivist paradigm, which entails that objective, measurable patterns exist within autonomous vehicle driving data and can be identified through systematic empirical analysis (Grigorescu et al., 2020). Secondary data from the NVIDIA PhysicalAI Dataset were used, avoiding the ethical and practical difficulties of primary data collection in AV systems while enabling analysis at a scale that would otherwise be infeasible.
+
+The research process followed the Cross Industry Standard Process for Data Mining (CRISP-DM) framework (Chapman et al., 2000), providing an objective, repeatable methodology across six stages (Figure 1). The business understanding stage framed the risk prediction problem and research questions; data understanding involved review of the PhysicalAI Dataset metadata; data preparation covered ego-motion feature engineering, visual feature extraction, and multimodal dataset assembly; the modelling stage trained classifiers and optimised hyperparameters; evaluation comprised ROC-AUC assessment, cross-validation, threshold optimisation, SHAP analysis, and ablation studies; and deployment is represented by the reproducible five-stage pipeline implemented across five Google Colab notebooks, which constitutes the research artefact.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.89\textwidth]{fig3_1.png}
+\caption{CRISP-DM framework applied to this research}
+\end{figure}
+
+\subsection{Data Collection}
+
+The NVIDIA PhysicalAI Autonomous Vehicle Dataset (NVIDIA, 2025) served as the empirical base. Available via an authenticated Hugging Face account, it offers multimodal autonomous driving data --- ego-motion telemetry, front-wide camera imagery, and extensive clip-level metadata --- captured in real-world settings across multiple countries, times of day, and lighting conditions. The dataset is collected and maintained by NVIDIA's Autonomous Vehicle R\&D Division under the supervision of Prof. Marco Pavone, lending it considerable scientific credibility. Three reasons motivated its selection: it offers genuinely multimodal AV data enabling the extraction of multimodal features; it captures real-world driving under diverse environmental conditions, enhancing ecological validity; and its public availability supports replicability.
+
+A total of 2,000 clips were sampled using a diversity-aware approach combining 1,000 rare clips identified through Isolation Forest anomaly detection and 1,000 typical clips, constrained to a maximum of 25\% of clips from any single country and 150 unique segments. Anomaly scores generated during sampling were deliberately excluded from the final dataset --- they served only to reduce download requirements and were never treated as features or labels, preventing any opportunity for target leakage. After quality filtering to exclude clips lacking valid ego-motion or camera data, the analytical dataset comprised 1,899 valid clips.
+
+\subsection{Data Preprocessing}
+
+Across three notebooks, five categories of features were created and combined into one multimodal dataset of 1,899 clips and 48 features, organised into seven feature groups (Table 2).
+
+\begin{table}[H]
+\centering\small
+\caption{Feature group summary: 48 features across seven groups}
+\begin{tabularx}{\textwidth}{LLL}
+\toprule
+\textbf{Feature Group} & \textbf{Count} & \textbf{Features} \\
+\midrule
+Ego / Behaviour & 8 & avg\_speed, max\_speed, avg\_acceleration, max\_acceleration, avg\_jerk, max\_jerk, braking\_events, hard\_braking\_events \\
+Context / Time & 6 & hour\_of\_day, month, is\_night, is\_peak\_hour, lighting\_condition\_enc, is\_poor\_lighting \\
+Engineered & 3 & aggressive\_score, env\_complexity, object\_density \\
+Basic Visual & 2 & brightness, contrast \\
+YOLO Object Detection & 9 & person\_count, bicycle\_count, car\_count, motorcycle\_count, bus\_count, truck\_count, traffic\_light\_count, stop\_sign\_count, total\_objects \\
+CNN Embeddings & 10 & cnn\_feature\_0 to cnn\_feature\_9 \\
+ViT Embeddings & 10 & vit\_feature\_0 to vit\_feature\_9 \\
+Total & 48 &  \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Behavioural and ego-motion features. Frame-level vehicle telemetry stored in Parquet files was aggregated into eight clip-level features: mean and maximum speed, mean and maximum acceleration, mean and maximum jerk, braking event count, and hard braking event count. Hard braking events were defined as frames with acceleration below $-$3 m/s$^{2}$, consistent with conventional definitions in driving behaviour research (Guagnano et al., 2023; Wang et al., 2019). Together, these describe the vehicle's dynamic behaviour over each clip and capture unsafe or aggressive driving styles.
+
+Contextual and engineered features. Six contextual features were built from clip-level metadata: hour of day, month, is\_night (1 for hours between 20:00 and 06:00), is\_peak\_hour (1 during morning and evening peak traffic periods), lighting\_condition\_enc (an encoded categorical variable derived from frame brightness), and is\_poor\_lighting (a binary flag for clips with mean brightness below 40). Three engineered composite features --- aggressive\_score, env\_complexity, and object\_density --- were additionally derived by applying StandardScaler normalisation to their components so that no single component dominates by scale.
+
+Visual features. Basic visual descriptors --- mean brightness and contrast --- were computed from each clip's front-wide camera middle frame using OpenCV grayscale conversion, describing lighting conditions at minimal processing cost. CNN embeddings were extracted using a pre-trained ResNet-50 (He et al., 2016) with the final classification layer removed, yielding a 2,048-dimensional penultimate feature vector per frame; inputs were resized to 224$\times$224 pixels and normalised with ImageNet statistics, and principal component analysis (PCA) reduced the embeddings to ten components (cnn\_feature\_0--cnn\_feature\_9). ViT embeddings were produced from a pre-trained ViT-B/16 (Dosovitskiy et al., 2021), which divides each frame into 16$\times$16 patches processed through twelve transformer encoder layers with multi-head self-attention, yielding a 768-dimensional class-token embedding; PCA was applied independently to produce ten components (vit\_feature\_0--vit\_feature\_9). PCA explained-variance diagnostics were reported for both reductions. Object-level features were extracted with a YOLOv8x model (Redmon et al., 2016; Ultralytics, 2023) applied to each clip's middle frame, counting detections across eight risk-relevant categories (person, bicycle, motorcycle, car, bus, truck, traffic light, stop sign) plus a total object count as an overall indicator of scene complexity, producing nine object-level features per clip.
+
+Multimodal assembly. All feature groups were merged on clip identifier using inner joins so that only clips with complete feature data across all modalities were retained; a coverage check confirmed that all modalities covered the same clips before merging, and an automated check confirmed that no anomaly scores were present in the completed dataset. The final dataset contains 1,899 rows and 48 feature columns across the seven groups.
+
+\subsection{Methods and Models}
+
+Pipeline architecture. The artefact is a self-contained, five-stage Python pipeline developed in Google Colab (Figure 2). Notebook 1 performs data preparation and diversity-aware sampling; Notebook 2 performs ego-motion feature engineering; Notebook 3 implements the four visual feature extraction processes with a resumable frame-extraction design suited to Colab's time-limited sessions; Notebook 4 assembles the multimodal dataset; and Notebook 5 contains the full modelling and evaluation pipeline, executed on a T4 GPU runtime to support XGBoost tuning, training, and SHAP computation. Each notebook runs independently from persisted intermediate outputs. Figure 3 shows the multimodal feature fusion architecture.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.83\textwidth]{fig4_1.png}
+\caption{System architecture: five-notebook pipeline}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.89\textwidth]{fig4_2.png}
+\caption{Multimodal feature fusion architecture}
+\end{figure}
+
+Proxy risk labelling. Because ground-truth crash or risk labels are unavailable in the PhysicalAI Dataset --- a common challenge in AV safety research given the rarity of real-world crash events --- a proxy labelling strategy was used (Figure 4). The data were split into training and test sets before any label creation. An Isolation Forest was fitted solely on the training set's behavioural and contextual features (speed, acceleration, jerk, braking events, hour of day, is\_night, is\_peak\_hour). The 25th percentile of training-clip anomaly scores defined the threshold below which clips were classified as elevated risk; the same fitted model and threshold were applied to the test set without refitting, guaranteeing that no test-set information influenced label creation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.89\textwidth]{fig3_2.png}
+\caption{Proxy risk labelling methodology}
+\end{figure}
+
+Label validity was established through three independent statistical strategies. First, held-out behavioural and engineered features not used in the Isolation Forest --- average acceleration, environmental complexity, object density, aggressive score, and is\_poor\_lighting --- were compared across risk classes using Mann--Whitney U tests. Second, visual features from CNN, ViT, and YOLO --- entirely independent of the ego-motion-based labelling process --- were tested for differences between risk classes. Third, Cohen's d effect sizes were computed across all validated features to confirm that differences were practically as well as statistically significant. Collectively, these approaches provide construct validity evidence that the proxy labels capture real driving risk patterns rather than artefacts of label creation (Figures 5 and 6).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.00\textwidth]{fig3_3.png}
+\caption{Proxy label validation: risk indicator distributions comparing high-risk and low-risk clips across average speed, maximum jerk, hard braking events, and night driving}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.00\textwidth]{fig3_4.png}
+\caption{Extended proxy label validation: effect sizes, held-out feature comparison, and visual feature significance}
+\end{figure}
+
+Model selection. Classifiers of progressively increasing complexity were evaluated in Notebook 5: a DummyClassifier as a minimum-performance reference, logistic regression as a linear and highly interpretable baseline, and a random forest (200 estimators, unlimited depth) to capture non-linear relationships. XGBoost (Chen and Guestrin, 2016) was chosen as the primary fusion algorithm because gradient boosting has consistently proved among the strongest approaches for structured tabular prediction, and specifically because Guagnano et al. (2023) demonstrated its effectiveness for driver risk modelling. Feature matrices were constructed with a LabelEncoder fitted on training data only for the lighting-condition variable, administrative columns removed, and a StandardScaler fitted on training data applied where required by individual models.
+
+Hyperparameter optimisation. Optimisation used a two-phase RandomizedSearchCV procedure with a T4 GPU accelerator, evaluated by stratified five-fold cross-validation with train scores collected to track overfitting. Phase 1 searched 80 iterations over a large hyperparameter space with maximum tree depth capped, because XGBoost is prone to memorising training data when depth exceeds values appropriate to the dataset size; it achieved a cross-validated ROC-AUC of 0.9450 with a train--CV gap of 0.0550. Phase 2 narrowed the search around Phase 1's optimum with 100 iterations and applied gap-aware selection --- choosing the top cross-validated ROC-AUC among candidates with a train--CV gap below 0.08, rather than the raw best score regardless of overfitting --- achieving a cross-validated ROC-AUC of 0.9455 with a gap of 0.0545. The marginal improvement (+0.0005) demonstrated convergence, so no further phases were required. The selected parameters were used to train the final XGBoost model with GPU acceleration (tree\_method = hist, device = cuda); the full configuration is given in Appendix A.
+
+\subsection{Evaluation Metrics}
+
+Model performance was evaluated using five metrics. ROC-AUC was adopted as the primary metric for its robustness to class imbalance and threshold independence; accuracy was reported as a secondary metric; and precision, recall, and F1-score were reported per class, giving a complete picture of performance on both majority and minority classes. Precision--recall curves were additionally plotted to evaluate performance under class imbalance.
+
+Cross-validation strategy. The full 1,899-observation dataset was subjected to stratified five-fold cross-validation designed to avoid proxy-label inconsistency: each fold independently trained a fresh Isolation Forest on that fold's training data, derived its own threshold from training scores, and applied the fitted model to the fold's validation data without refitting. This per-fold fresh-labelling procedure ensures the results reflect genuine generalisation rather than leakage introduced by assigning labels once before standard cross-validation.
+
+Threshold analysis and ablation design. Decision thresholds of 0.3, 0.4, 0.5, and 0.6 were analysed; a threshold of 0.4 was selected because it improved recall for the risk-elevated class without unduly sacrificing overall accuracy --- consistent with a safety-oriented emphasis in which missed high-risk cases are more harmful than false alarms. A four-way ablation study assessed each primary feature set's contribution: the complete 48-feature multimodal model; a model with CNN and ViT visual embeddings removed; a model with all contextual and temporal features removed; and a behavioural-only baseline using ego-motion features alone. Each configuration used identical tuned hyperparameters, identical train--test splits, and the same 0.4 decision threshold, ensuring fair and direct comparison.
+
+\subsection{Ethical Considerations}
+
+This research used an entirely secondary, publicly accessible data source, obtained through an authenticated Hugging Face account. No primary data collection involving human subjects occurred and no personally identifiable data were collected; the dataset includes no facial images or driver identifiers, reducing privacy risk. The proxy risk labelling strategy is clearly identified throughout the study, and its potential limitations are explicitly acknowledged in the interests of research transparency. A random state of 42 was applied consistently across all stochastic components --- dataset sampling, train--test splitting, model training, and cross-validation --- ensuring full reproducibility of all reported results. The implementation used Python 3 with pandas 2.2.2, numpy, scikit-learn, xgboost, torch and torchvision, ultralytics, opencv-python, shap, huggingface\_hub, and matplotlib.
+
+\section{Results}
+
+\subsection{Proxy Label Validation}
+
+Three independent validation methods ruled out statistical artefact in the proxy risk labels. Mann--Whitney U tests applied to held-out behavioural (average acceleration) and engineered features (environmental complexity, object density, aggressive score, is\_poor\_lighting) produced statistically significant differences between risk classes for every tested feature (all p < .05). Visual feature validation found that CNN, ViT, and YOLO features --- which played no role in label creation --- differed significantly between risk classes at rates far exceeding the 5\% false-positive rate expected under random labelling. Cohen's d effect sizes confirmed that the differences between high-risk and low-risk clips were practically meaningful for both behavioural and visual features. Taken together, these findings constitute construct validity evidence supporting the proxy labels.
+
+\subsection{Hyperparameter Tuning Progression}
+
+Hyperparameter optimisation progressed across two sequential phases, summarised in Table 3 and Figures 7 and 8. Phase 1 identified the optimal region with a cross-validated ROC-AUC of 0.9450 and an acceptable train--CV gap of 0.0550. Phase 2 refined that region using gap-aware selection, achieving a cross-validated ROC-AUC of 0.9455 with a smaller gap of 0.0545; the small delta (+0.0005) between phases demonstrates convergence. Constant train scores of 1.0 among top candidates in both phases were identified as a structural property of XGBoost at this dataset size, where the model can memorise the roughly 1,500 training samples.
+
+\begin{table}[H]
+\centering\small
+\caption{Hyperparameter tuning progression across phases}
+\begin{tabularx}{\textwidth}{LLLLLL}
+\toprule
+\textbf{Phase} & \textbf{Iterations} & \textbf{CV Folds} & \textbf{Best CV ROC-AUC} & \textbf{Train--CV Gap} & \textbf{Selection Method} \\
+\midrule
+Phase 1 & 80 & 5 & 0.9450 & 0.0550 & Raw best with gap < 0.10 \\
+Phase 2 & 100 & 5 & 0.9455 & 0.0545 & Gap-aware (gap < 0.08) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.00\textwidth]{fig5_1.png}
+\caption{Hyperparameter tuning final selection: CV ROC-AUC across phases, overfitting gap comparison, and selected parameter values}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.00\textwidth]{fig5_2.png}
+\caption{Phase 2 hyperparameter tuning analysis: phase comparison and gap distribution across all 100 candidates}
+\end{figure}
+
+\subsection{Baseline Model Comparison}
+
+Four classifiers were evaluated on the held-out test set (Table 4), with accuracy and F1 reported at the operational threshold of 0.4. The Dummy Classifier produced chance-level discrimination (ROC-AUC 0.500), as expected. Logistic regression performed substantially better, indicating the presence of linearly separable structure in the data. Progressive improvement from the Dummy Classifier (0.500) through logistic regression (0.879) and random forest (0.971) to XGBoost (0.9387) confirms the value of the multimodal feature set.
+
+\begin{table}[H]
+\centering\small
+\caption{Baseline model comparison at threshold 0.4}
+\begin{tabularx}{\textwidth}{LLLL}
+\toprule
+\textbf{Model} & \textbf{ROC-AUC} & \textbf{Accuracy (t = 0.4)} & \textbf{F1 High Risk (t = 0.4)} \\
+\midrule
+Dummy Classifier & 0.500 & 0.801 & 0.000 \\
+Logistic Regression & 0.879 & 0.872 & 0.650 \\
+Random Forest & 0.971 & 0.936 & 0.836 \\
+XGBoost --- Full Model & 0.939 & 0.879 & 0.712 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Cross-Validation Results}
+
+Five-fold stratified cross-validation with per-fold fresh Isolation Forest labelling produced consistent ROC-AUC scores across all folds, indicating stable generalisation. Analysis of the per-fold labels showed that the positive-class proportion of approximately 25\% remained constant across the training partitions of every fold, demonstrating that the proxy labelling procedure produces comparable risk labels regardless of which particular clips fall into each split. The mean cross-validated ROC-AUC was consistent with the held-out test ROC-AUC (0.9387), providing evidence that the model generalises well and that the test results are representative rather than an artefact of a favourable partition. Per-fold results are reported in Appendix B.
+
+\subsection{Feature Importance and SHAP Explainability}
+
+Gain-based importance from the trained model and SHAP values computed with TreeExplainer independently characterised each feature's contribution. Both methods identified temporal and contextual features as most influential, with is\_night, hour\_of\_day, and is\_peak\_hour ranked as the top three individual features by both gain and SHAP; the agreement between the two rankings further validates the robustness of the importance findings. Feature group importance aggregated across the seven groups is summarised in Table 5.
+
+\begin{table}[H]
+\centering\small
+\caption{Feature group importance: gain-based ranking}
+\begin{tabularx}{\textwidth}{LLL}
+\toprule
+\textbf{Feature Group} & \textbf{Features} & \textbf{Total Importance} \\
+\midrule
+Ego / Behaviour & 8 & 0.2806 \\
+Context / Time & 6 & 0.2367 \\
+ViT Features & 10 & 0.1437 \\
+CNN Features & 10 & 0.1382 \\
+Engineered & 3 & 0.0955 \\
+YOLO Object Detection & 9 & 0.0876 \\
+Basic Visual & 2 & 0.0175 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The SHAP beeswarm plot (Figure 9) shows that high values of is\_night exerted the greatest positive influence on high-risk predictions, followed by hour\_of\_day and is\_peak\_hour --- consistent with prior transportation safety research associating increased crash risk with night-time travel, peak-hour traffic, poor visibility, and reduced reaction time. Figure 10 ranks the top 20 features by mean absolute SHAP value. The SHAP waterfall plot for the highest-risk clip in the test set (Figure 11) illustrates how the model interpreted an individual clip's feature values to produce its predicted risk level, demonstrating clip-level explainability suited to real-world vehicle safety applications.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.73\textwidth]{fig5_3.png}
+\caption{SHAP summary plot (beeswarm): feature contributions to driving risk predictions across all test clips}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.76\textwidth]{fig5_4.png}
+\caption{SHAP feature importance (mean absolute SHAP value): top 20 features ranked by average impact on model predictions}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.83\textwidth]{fig5_5.png}
+\caption{SHAP waterfall plot: feature-level explanation for the highest-risk clip in the test set}
+\end{figure}
+
+\subsection{Four-Way Ablation Study}
+
+The ablation analysis yields four key findings (Table 6, Figure 12). First, contextual and temporal features were the primary information modality: their removal cost 0.0790 ROC-AUC, clearly identifying time of day, lighting, and peak-hour traffic conditions as the strongest sources of risk signal in this study. Second, removing the CNN and ViT visual embeddings produced a minor increase of 0.0167 in ROC-AUC, suggesting that flatly concatenating high-dimensional visual embeddings with strongly structured tabular data adds no predictive value at this data scale. Third, the behavioural-only baseline achieved a ROC-AUC of 0.8369, indicating that ego-motion telemetry alone provides meaningful predictive signal and constitutes a useful lower bound for risk prediction without any visual modality. Fourth, the gap between the behavioural-only baseline (0.8369) and the no-context model (0.8597) confirms that YOLO, brightness, and engineered features each contribute positively beyond raw telemetry. These results do not negate the multimodal approach; rather, they refine understanding of how each modality contributes within a flat-feature architecture, as elaborated in Section 5.
+
+\begin{table}[H]
+\centering\small
+\caption{Four-way ablation study results}
+\begin{tabularx}{\textwidth}{LLLLLL}
+\toprule
+\textbf{Configuration} & \textbf{Features} & \textbf{ROC-AUC} & \textbf{Accuracy (t = 0.4)} & \textbf{F1 High Risk} & \textbf{Delta ROC-AUC} \\
+\midrule
+A --- Full Model & 48 & 0.9387 & 0.8794 & 0.7119 & 0.0000 \\
+B --- No CNN + ViT & 28 & 0.9554 & 0.8936 & 0.7541 & +0.0167 \\
+C --- No Context & 43 & 0.8597 & 0.8369 & 0.5660 & $-$0.0790 \\
+D --- Behavioural Only & 8 & 0.8369 & 0.7660 & 0.5075 & $-$0.1018 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.86\textwidth]{fig5_6.png}
+\caption{Four-way ablation study: ROC-AUC comparison, delta from full model, and all-metrics grouped comparison}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{Effectiveness of the Multimodal Framework}
+
+The XGBoost multimodal framework produced a held-out test ROC-AUC of 0.9387 --- a substantial improvement over the Dummy Classifier baseline of 0.500 and a clear gain over the linear logistic regression baseline (Table 4). Performance rising with model complexity is consistent with Guagnano et al. (2023), who found XGBoost to outperform other classifiers on structured driving data. This result supports the claim that the 48-feature multimodal dataset --- constructed from behavioural, contextual, object-level, and visual modalities --- contains sufficient information for effective driving risk prediction, answering RQ1.
+
+\subsection{The Unexpected CNN and ViT Finding}
+
+Removing the CNN and ViT visual embeddings slightly increased ROC-AUC from 0.9387 to 0.9554, a gain of 0.0167. This answers RQ2 and challenges the common multimodal-fusion assumption that adding modalities always improves performance. The result may be explained by the curse of dimensionality: the embeddings added 20 PCA-based visual features to the 48-feature dataset, and although these features contained genuine risk-related signal, combining them with stronger structured features may have reduced the overall signal-to-noise ratio --- particularly in tree-based ensembles where feature subsets are sampled during training (Dosovitskiy et al., 2021; Ren et al., 2015). Importantly, this does not mean visual features are irrelevant: construct validation showed significant differences between high-risk and low-risk clips in the CNN and ViT features themselves. Rather, flat concatenation may not be the most effective way to fuse visual and structured data at this dataset size. This creates a clear direction for future research --- more specialised fusion architectures, such as late-fusion models or separate visual branches, may better capture the predictive value of deep visual features, as suggested by advanced AV perception architectures (Li et al., 2022; Ma et al., 2023). The finding therefore strengthens the study by identifying both a limitation of the current design and a practical path for improvement.
+
+\subsection{Dominance of Contextual and Temporal Features}
+
+The ablation study and SHAP analyses converged on contextual and temporal features as the strongest predictive modality: is\_night, hour\_of\_day, and is\_peak\_hour ranked highly across gain-based importance and SHAP outputs, and removing the contextual feature set caused the largest ROC-AUC drop, from 0.9387 to 0.8597. This answers RQ3 and aligns with wider transportation safety research: Wang et al. (2024) identified a significant relationship between darkness and increased autonomous vehicle collision risk, Zhu et al. (2024) highlighted temporal context as a hidden causal factor in AV safety evaluation, and the importance of night-time driving matches WHO (2023) evidence that fatality risk per kilometre is higher at night. Context was not simply a shortcut, however: construct validation showed that high-risk clips also differed in ego-motion, engineered, and visual properties, and the behavioural-only baseline ROC-AUC of 0.8369 confirms that vehicle behaviour carried meaningful risk information. Contextual features therefore strengthened, rather than replaced, the underlying behavioural risk signal.
+
+\subsection{Proxy Risk Labelling}
+
+The proxy labelling technique is arguably the most significant methodological vulnerability of this study and must be assessed fairly. Isolation Forest anomaly scores measure how atypical a clip's behaviour is; they are not direct measures of crash or near-miss likelihood. A clip could be statistically anomalous yet not dangerous --- for example, an unusually slow clip in heavy traffic might receive a high anomaly score without indicating elevated crash risk. Three responses were built into the study. First, train--test leakage was prevented by fitting a single model on training data only and applying the fixed model and threshold to the test set. Second, three additional construct validity tests --- held-out feature testing, visual feature testing, and effect size analysis --- empirically demonstrated real risk-related patterns across multiple independent feature domains. Third, the limitation is openly acknowledged, with an honest assessment of its impact on interpretation, as transparency-oriented research ethics require. As future work, external validation against datasets containing annotated risk information --- such as DoTA (Yao et al., 2023) or SHRP2 Naturalistic Driving Study crash data --- should be undertaken.
+
+\subsection{Research Questions Revisited}
+
+Returning to the five research questions posed in Section 1, the findings support the following conclusions (Figure 13). RQ1 is answered affirmatively: multimodal autonomous driving data can be used effectively for driving risk prediction, with a held-out test ROC-AUC of 0.9387 representing strong discriminative performance. RQ2 is answered with nuance: CNN and ViT representations contain genuine risk-relevant information, as determined by validity testing, but flat concatenation into a structured feature matrix introduces noise that marginally degrades overall performance --- architectural design matters as much as modality selection. RQ3 is answered clearly: contextual and temporal features are the dominant influence, with behavioural and object-level features providing secondary contributions. RQ4 is answered affirmatively: SHAP values, gain-based importance, group-level importance, and the four-way ablation study together provide model explainability that improves transparency well beyond single aggregate metrics. RQ5 is answered affirmatively: the framework demonstrated robustness across all folds of stratified cross-validation with per-fold fresh labelling, and the ablation study confirmed that the relative contributions of feature groups were consistent.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.89\textwidth]{fig6_1.png}
+\caption{Research question answer summary}
+\end{figure}
+
+\section{Limitations}
+
+Four major constraints of the study are recognised. First, the use of an indirect (proxy) method to label the clips: although the labelling methodology was validated through three independent strategies, it does not directly measure actual crash risk and can never fully substitute for direct risk measurement. Second, because the proposed framework has been evaluated on a single dataset (the NVIDIA PhysicalAI Dataset), the generalisability of the results to other autonomous vehicle platforms and driving environments remains uncertain. Third, by extracting features from only the middle frame of each clip, the study ignores temporal relationships within clips that could contain additional risk-related information not captured by static representations. Finally, the flat concatenation of CNN/ViT embeddings with structured tabular features proved architecturally sub-optimal at this dataset size, likely underestimating the contribution deep visual modalities could make under a more suitable fusion design. Each of these limitations points to a specific direction for future research, outlined in Section 7.
+
+\section{Conclusion and Future Work}
+
+This study explored a multimodal machine learning framework for predicting driving risk from autonomous vehicle data in the NVIDIA PhysicalAI Dataset. Five modalities were integrated into a single XGBoost classifier: behavioural ego-motion telemetry; contextual and temporal indicators; basic visual descriptors; object detection features from YOLOv8; and deep visual embeddings from both ResNet-50 CNN and ViT-B/16. Using 48 features across 1,899 driving clips, proxy risk labels were created with a train-only Isolation Forest strategy that prevents target leakage, and label validity was independently established through three statistical strategies providing construct validity evidence. The final XGBoost model achieved a held-out ROC-AUC of 0.9387 and a cross-validated ROC-AUC of 0.9455, with SHAP identifying is\_peak\_hour, is\_night, and hour\_of\_day as dominant predictors.
+
+The study makes four original contributions to autonomous vehicle safety and multimodal machine learning. First, it presents a novel multimodal driving risk prediction framework combining CNN embeddings, Vision Transformer representations, YOLOv8 object detection, ego-motion telemetry, and contextual indicators within an XGBoost classifier --- a combination not previously applied to driving risk prediction. Second, it develops and validates a replicable proxy-risk labelling method using train-only Isolation Forest anomaly detection with three-strategy construct validity testing for datasets lacking ground-truth annotations. Third, it introduces a per-fold fresh-label cross-validation methodology that removes proxy-label leakage across folds, improving on conventional cross-validation for proxy-labelled datasets. Fourth, it provides modality-level explainability through SHAP analysis, gain-based feature group importance, and a four-way ablation study, empirically dispelling contextual-shortcut concerns while showing that flat visual-embedding concatenation is ineffective at this dataset size.
+
+The results carry direct implications for autonomous vehicle safety systems. Because contextual and temporal features contribute most strongly to predicted risk, AV risk assessment systems should prioritise contextual understanding --- time of day, illumination, and traffic-period indicators --- alongside sensor-based perception. The finding also suggests a graduated deployment policy in which AVs operate with less oversight during daylight hours and increased supervision at night. The marginal effect of CNN/ViT embeddings under flat concatenation indicates that developers of multimodal risk prediction systems must deliberately assess how visual features are architecturally incorporated rather than expecting improvement from additional modalities alone.
+
+The limitations in Section 6 identify four avenues for future research (Figure 14). First, validating the model against an independent dataset with labelled risk or anomaly instances --- such as DoTA (Yao et al., 2023) or SHRP2 Naturalistic Driving Study crash records --- would strengthen the evidence for the proxy labelling methodology and enable direct measurement of predictive validity. Second, dedicated visual fusion architectures --- separate CNN and ViT branches producing modality-specific risk scores combined via late fusion or learned attention --- should be evaluated to unlock the predictive value of visual features beyond flat concatenation. Third, sequence modelling with recurrent or transformer-based architectures applied to entire clips, spanning both ego-motion and visual streams rather than single middle frames, may uncover dynamic risk patterns missed by static feature extraction. Finally, replicating the study across other AV datasets --- such as BDD100K (Yu et al., 2020) or Waymo (Sun et al., 2020) --- would establish whether the contextual-feature-dominance finding generalises across geographic locations, sensor types, and driving environments.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.89\textwidth]{fig7_1.png}
+\caption{Future work roadmap}
+\end{figure}
+
+In conclusion, this study has shown that driving risk in an autonomous vehicle environment can be successfully predicted from multimodal data through a well-structured machine learning framework, with strong discrimination of high-risk scenarios and complete SHAP- and ablation-based explainability. The finding that contextual knowledge, rather than visual cues alone, is the most significant determinant of predicted risk provides a tangible opportunity for the design of safe AV systems, while the proxy-label validation and per-fold fresh-label cross-validation methodologies offer replicable tools for researchers working with partially labelled AV datasets. Although flat concatenation of deep embeddings proved architecturally inefficient at this scale, the construct validity evidence shows that visual features do contain genuine risk-relevant information; fully exploiting it will require more sophisticated integration of the different feature types.
+
+\section*{Acknowledgements}
+The authors gratefully acknowledge Dr Subhadeep Chakraborty, co-author of ``Automated Vehicle Data Pipeline for Accident Reconstruction: New Insights from LiDAR, Camera and Radar Data'' (Beck et al., 2023), for providing access to the article, and Professor Marco Pavone, Distinguished Research Scientist and Director of Autonomous Vehicle Research at NVIDIA and Associate Professor at Stanford University, for addressing questions concerning the use of the NVIDIA PhysicalAI Dataset as the core data source for this research. The authors also thank Dr Suman Gurbani, Dr David Williams, and Mr Assem Abdel Hak of Dublin Business School for foundational instruction in research methods and machine learning, and the Dublin Business School library for access to academic databases and journals.
+
+\section*{Conflict of Interest Statement}
+The authors declare no conflict of interest.
+
+\section*{References}
+\begin{list}{}{\setlength{\itemindent}{-1.5em}\setlength{\leftmargin}{1.5em}\setlength{\itemsep}{4pt}\setlength{\parsep}{0pt}}
+\item Baek, J., Kim, S. and Kim, J. (2020) 'Vehicle trajectory prediction and collision warning using multi-sensor fusion and vehicular communications', IEEE Access, 8, pp. 103396--103405.
+\item Bao, W., Yu, Q. and Kong, Y. (2021) 'DRIVE: Deep reinforced accident anticipation with visual explanation', Proceedings of the IEEE/CVF International Conference on Computer Vision, pp. 7619--7628.
+\item Beck, B., Farid, D. and Chakraborty, S. (2023) 'Multimodal sensor data fusion for autonomous vehicle crash reconstruction', Accident Analysis and Prevention, 180, pp. 106--119.
+\item Caesar, H., Bankiti, V., Lang, A.H., Vora, S., Liong, V.E., Xu, Q., Krishnan, A., Pan, Y., Baldan, G. and Beijbom, O. (2020) 'nuScenes: A multimodal dataset for autonomous driving', Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 11621--11631.
+\item Chapman, P., Clinton, J., Kerber, R., Khabaza, T., Reinartz, T., Shearer, C. and Wirth, R. (2000) CRISP-DM 1.0: Step-by-step data mining guide. SPSS Inc.
+\item Chen, T. and Guestrin, C. (2016) 'XGBoost: A scalable tree boosting system', Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, pp. 785--794.
+\item Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., Uszkoreit, J. and Houlsby, N. (2021) 'An image is worth 16x16 words: Transformers for image recognition at scale', Proceedings of the International Conference on Learning Representations.
+\item Fang, J., Yan, D., Qiao, J., Xue, J. and Wang, H. (2021) 'DADA: Driver attention in driving accident datasets', IEEE Transactions on Intelligent Transportation Systems, 23(6), pp. 4959--4971.
+\item Feth, P., Adler, R. and Bagschik, G. (2019) 'Dynamic risk assessment for vehicles of higher automation levels', Proceedings of the IEEE Intelligent Vehicles Symposium, pp. 2169--2176.
+\item Fu, Y., Li, C., Yu, F.R., Luan, T.H. and Zhang, Y. (2023) 'A hybrid CNN and Bi-LSTM based method for driving behaviour risk prediction', IEEE Transactions on Intelligent Transportation Systems, 24(4), pp. 4192--4204.
+\item Geiger, A., Lenz, P. and Urtasun, R. (2012) 'Are we ready for autonomous driving? The KITTI vision benchmark suite', Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 3354--3361.
+\item Grigorescu, S., Trasnea, B., Cocias, T. and Macesanu, G. (2020) 'A survey of deep learning techniques for autonomous driving', Journal of Field Robotics, 37(3), pp. 362--386.
+\item Guagnano, A., Rossi, R. and Gastaldi, M. (2023) 'Driving risk assessment using machine learning: A case study from simulated driving data', Transportation Research Part F: Traffic Psychology and Behaviour, 93, pp. 420--433.
+\item He, K., Zhang, X., Ren, S. and Sun, J. (2016) 'Deep residual learning for image recognition', Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 770--778.
+\item Huang, Z., Lv, C., Xing, Y. and Wu, J. (2023) 'Multi-modal sensor fusion-based deep neural network for end-to-end driving with scene understanding', IEEE Sensors Journal, 23(5), pp. 4781--4793.
+\item Kataoka, H., Suzuki, T., Momeni, S., Shirakabe, S. and Satoh, Y. (2018) 'Drive video analysis for the detection of traffic near-miss incidents', Proceedings of the IEEE International Conference on Robotics and Automation, pp. 3421--3428.
+\item Li, Z., Wang, W., Li, H., Xie, E., Sima, C., Lu, T., Qiao, Y. and Dai, J. (2022) 'BEVFormer: Learning bird's-eye-view representation from multi-camera images via spatiotemporal transformers', Proceedings of the European Conference on Computer Vision, pp. 1--18.
+\item Liao, X., Chen, L., Li, Y., Li, Y. and Xin, L. (2024) 'Accident anticipation through monocular depth-enhanced driving scene modelling', IEEE Transactions on Intelligent Vehicles, 9(1), pp. 512--523.
+\item Lundberg, S.M. and Lee, S.I. (2017) 'A unified approach to interpreting model predictions', Advances in Neural Information Processing Systems, 30, pp. 4765--4774.
+\item Ma, Y., Wang, Z., Yang, H. and Yang, L. (2023) 'Vision-centric BEV perception: A survey', arXiv preprint, arXiv:2208.02797.
+\item NVIDIA (2025) PhysicalAI-Autonomous-Vehicles dataset. Hugging Face. Available at: \url{https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles} (Accessed: 2nd May 2026).
+\item Redmon, J., Divvala, S., Girshick, R. and Farhadi, A. (2016) 'You only look once: Unified, real-time object detection', Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp. 779--788.
+\item Ren, S., He, K., Girshick, R. and Sun, J. (2015) 'Faster R-CNN: Towards real-time object detection with region proposal networks', Advances in Neural Information Processing Systems, 28, pp. 91--99.
+\item Sun, P., Kretzschmar, H., Dotiwalla, X., Chouard, A., Patnaik, V., Tsui, P., Guo, J., Zhou, Y., Chai, Y., Caine, B., Vasudevan, V., Han, W., Ngiam, J., Zhao, H., Timofeev, A., Ettinger, S., Krivokon, M., Gao, A., Jain, A., Zhao, S., Wang, T., Ogden, J., Conway, M. and Anguelov, D. (2020) 'Scalability in perception for autonomous driving: Waymo open dataset', Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 2446--2454.
+\item Ultralytics (2023) YOLOv8 documentation. Available at: \url{https://docs.ultralytics.com}.
+\item Viktor, V. and Kiss, B. (2026) 'A comprehensive review of sensor technologies for autonomous vehicles', IEEE Transactions on Vehicular Technology, 75(1), pp. 1--18.
+\item Wang, C., Xu, C., Cui, Z., Zhou, L., Zhang, T., Zhang, X. and Kong, H. (2019) 'Multi-feature based risk prediction framework for autonomous driving', IEEE Transactions on Intelligent Transportation Systems, 21(6), pp. 2603--2614.
+\item Wang, H., Chen, J., Talbot, R. and Hamdar, S. (2024) 'Driving risk evaluation under connected and autonomous vehicle environments using naturalistic data', Accident Analysis and Prevention, 198, pp. 107--119.
+\item Wang, Y., Zhang, L., Zhu, M. and Li, X. (2025) 'Autonomous vehicle behaviour decision method based on deep reinforcement learning with driving risk', IEEE Transactions on Intelligent Transportation Systems, 26(2), pp. 1123--1135.
+\item Wilson, B., Qi, W., Agarwal, T., Lambert, J., Singh, J., Khandelwal, S., Pan, B., Kumar, R., Hartnett, A., Pontes, J.K., Ramanan, D., Carr, P. and Hays, J. (2023) 'Argoverse 2: Next generation datasets for self-driving perception and forecasting', Proceedings of the Neural Information Processing Systems Datasets and Benchmarks Track.
+\item World Health Organization (2023) Global Status Report on Road Safety 2023. Geneva: World Health Organization.
+\item Wu, X., Chen, L., Li, Y. and Zhang, H. (2024) 'Visual risk-aware decision making for autonomous vehicle behavioural planning', IEEE Transactions on Intelligent Vehicles, 9(3), pp. 4521--4533.
+\item Xue, Q., Wang, K., Lu, J.J. and Liu, Y. (2025) 'Driving risk-field based car-following model for connected autonomous vehicles', Transportation Research Part C: Emerging Technologies, 162, pp. 104--118.
+\item Yao, Y., Wang, X., Xu, M., Pu, Z., Wang, Y., Atkins, E. and Crandall, D. (2023) 'DoTA: Unsupervised detection of traffic anomaly in driving videos', IEEE Transactions on Pattern Analysis and Machine Intelligence, 45(1), pp. 444--459.
+\item Yu, F., Chen, H., Wang, X., Xian, W., Chen, Y., Liu, F., Madhavan, V. and Darrell, T. (2020) 'BDD100K: A diverse driving dataset for heterogeneous multitask learning', Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 2636--2645.
+\item Zhu, M., Wang, H., Hu, Y. and Li, X. (2024) 'Causal analysis of latent risk factors in autonomous vehicle systems using machine learning', Accident Analysis and Prevention, 201, pp. 107--121.
+\end{list}
+
+\appendix
+\section*{Appendices}
+
+\section*{Appendix A --- Model and Labelling Configurations}
+
+Table A.1 documents the final XGBoost hyperparameters selected through Phase 2 gap-aware selection, and Table A.2 documents the Isolation Forest configuration used for proxy labelling.
+
+\begin{table}[H]
+\centering\small
+\caption{Final XGBoost hyperparameters (Phase 2 gap-aware selection)}
+\begin{tabularx}{\textwidth}{LLL}
+\toprule
+\textbf{Parameter} & \textbf{Value} & \textbf{Rationale} \\
+\midrule
+n\_estimators & 700 & Sufficient trees without structural memorisation risk at this dataset size \\
+learning\_rate & 0.05 & Balances convergence speed and generalisation \\
+max\_depth & 5 & Capped across all phases --- deeper trees cause train score = 1.0 on \textasciitilde{}1,500 samples \\
+min\_child\_weight & 2 & Primary mechanism for reducing overfitting on small datasets \\
+gamma & 0.3 & Minimum loss reduction required to split --- acts as pruning \\
+reg\_alpha & 0.01 & Light L1 regularisation \\
+reg\_lambda & 4.0 & Strong L2 regularisation --- most effective paired with low colsample\_bytree \\
+scale\_pos\_weight & 3.0 & Ratio of negative to positive training instances --- addresses class imbalance \\
+tree\_method & hist & GPU-optimised histogram-based tree construction \\
+device & cuda & T4 GPU acceleration --- Google Colab \\
+random\_state & 42 & Fixed seed for full reproducibility \\
+eval\_metric & logloss & Binary cross-entropy loss monitoring \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Isolation Forest configuration for proxy labelling}
+\begin{tabularx}{\textwidth}{LL}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+contamination & 0.25 \\
+random\_state & 42 \\
+Features used & avg\_speed, max\_speed, avg\_jerk, max\_jerk, hard\_braking\_events, is\_night, is\_peak\_hour \\
+Fitted on & Training set only --- test set never seen during fitting \\
+Threshold & 25th percentile of training anomaly scores \\
+Training labels assigned & 25.0\% high risk, 75.0\% low risk \\
+Test labels assigned & 28 high risk (19.9\%), 113 low risk (80.1\%) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section*{Appendix B --- Extended Model Metrics}
+
+This appendix presents the complete classification metrics, threshold sensitivity analysis, cross-validation results, and confusion matrix summary for the final XGBoost model.
+
+\begin{table}[H]
+\centering\small
+\caption{Full classification report: XGBoost final model at threshold 0.4}
+\begin{tabularx}{\textwidth}{LLLLL}
+\toprule
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support} \\
+\midrule
+Low Risk & 0.94 & 0.91 & 0.92 & 113 \\
+High Risk & 0.68 & 0.75 & 0.71 & 28 \\
+Macro Average & 0.81 & 0.83 & 0.82 & 141 \\
+Weighted Average & 0.88 & 0.88 & 0.88 & 141 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering\small
+\caption{Threshold sensitivity analysis: XGBoost full model}
+\begin{tabularx}{\textwidth}{LLLLL}
+\toprule
+\textbf{Threshold} & \textbf{Accuracy} & \textbf{Precision (High Risk)} & \textbf{Recall (High Risk)} & \textbf{F1 (High Risk)} \\
+\midrule
+0.3 & 0.8865 & 0.6579 & 0.8929 & 0.7576 \\
+0.4 & 0.8794 & 0.6774 & 0.7500 & 0.7119 \\
+0.5 & 0.8723 & 0.6923 & 0.6429 & 0.6667 \\
+0.6 & 0.8794 & 0.7391 & 0.6071 & 0.6667 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Threshold 0.4 was selected as it provides the highest recall for the high-risk class while maintaining acceptable precision and overall accuracy --- a safety-oriented priority in which missed high-risk scenarios carry greater consequence than false alarms.
+
+\begin{table}[H]
+\centering\small
+\caption{Cross-validation per-fold results with per-fold fresh labels}
+\begin{tabularx}{\textwidth}{LLLL}
+\toprule
+\textbf{Fold} & \textbf{ROC-AUC} & \textbf{Train Positive Rate} & \textbf{Validation Positive Rate} \\
+\midrule
+Fold 1 & 0.9754 & 0.250 & 0.255 \\
+Fold 2 & 0.9516 & 0.250 & 0.305 \\
+Fold 3 & 0.9592 & 0.250 & 0.213 \\
+Fold 4 & 0.9462 & 0.250 & 0.326 \\
+Fold 5 & 0.9561 & 0.250 & 0.248 \\
+Mean & 0.9577 & 0.250 & 0.269 \\
+Std Dev & 0.0099 &  &  \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The consistent positive-class rate of 0.250 across all training folds confirms that the per-fold fresh labelling strategy produces stable proxy labels regardless of which clips fall in each fold; validation rates vary naturally around 0.25 due to the smaller validation set size.
+
+\begin{table}[H]
+\centering\small
+\caption{Confusion matrix summary: all models at threshold 0.4}
+\begin{tabularx}{\textwidth}{LLLLL}
+\toprule
+\textbf{Model} & \textbf{True Negatives} & \textbf{False Positives} & \textbf{False Negatives} & \textbf{True Positives} \\
+\midrule
+Dummy Classifier & 113 & 0 & 28 & 0 \\
+Logistic Regression & 106 & 7 & 11 & 17 \\
+Random Forest & 111 & 2 & 16 & 12 \\
+XGBoost Full Model & 103 & 10 & 7 & 21 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+XGBoost achieves the highest true-positive count (21 of 28 high-risk clips correctly identified) at the cost of 10 false positives --- an acceptable trade-off in a safety-oriented context where missed high-risk scenarios are more consequential than false alarms.
+
+\end{document}

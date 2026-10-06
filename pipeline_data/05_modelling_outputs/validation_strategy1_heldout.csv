@@ -1,0 +1,6 @@
+Feature,High Risk Mean,Low Risk Mean,Cohen's d,Effect Size,p-value,Significant
+avg_acceleration,-0.0823,0.0479,-0.3966,Small,4.4e-05,Yes ✅
+env_complexity,6.3343,7.0569,-0.097,Negligible,0.04249,Yes ✅
+object_density,0.5857,0.6328,-0.1566,Negligible,0.05256,No ❌
+aggressive_score,2.5988,-0.4742,1.1836,Large,0.0,Yes ✅
+is_poor_lighting,0.2012,0.1586,0.1137,Negligible,0.197762,No ❌
