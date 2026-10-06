@@ -78,6 +78,8 @@ derived from the data itself, and **which kinds of information** drive those pre
 
 This project uses the [NVIDIA PhysicalAI Autonomous Vehicles](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles) dataset. Access is gated: sign in to Hugging Face, accept NVIDIA's licence on the dataset page, then run the notebooks to download and process the clips yourself. The [NVIDIA Autonomous Vehicle Dataset License](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles/blob/main/LICENSE.pdf) does not allow the dataset, or anything derived from it, to be redistributed, so camera frames, per-clip tables and the trained model are not included here.
 
+Publication of research built on this dataset was confirmed by Marco Pavone (NVIDIA) in October 2026, on the basis that only aggregate results and source code are shared, with no raw data or trained models. This repository follows that scope.
+
 To get access:
 
 1. Create a Hugging Face account and accept NVIDIA's licence on the dataset page.
@@ -312,5 +314,6 @@ PhysicalAI Autonomous Vehicles dataset is not included and remains under NVIDIA'
 
 ## Acknowledgements
 
-This work uses the NVIDIA PhysicalAI Autonomous Vehicles dataset. Thanks to Dublin Business School for
-supporting the research and its publication.
+This work uses the NVIDIA PhysicalAI Autonomous Vehicles dataset. We thank Marco Pavone (NVIDIA; Stanford University)
+for confirming that research built on the dataset may be published, and Dublin Business School for supporting
+the research and its publication.
