@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Multimodal Driving Risk Prediction Using Machine Learning on Autonomous Vehicle Data (NVIDIA Physical AI Dataset)"
+type: software
+authors:
+  - family-names: Nair
+    given-names: Prasanna Syam Shreyas
+    affiliation: Dublin Business School
+  - family-names: Izima
+    given-names: Obinna
+    affiliation: Dublin Business School
+date-released: 2026-05-01
+keywords:
+  - autonomous vehicles
+  - driving risk prediction
+  - multimodal machine learning
+  - explainable AI
+  - XGBoost
+  - SHAP
+  - YOLOv8
+  - vision transformer
+license: MIT
+preferred-citation:
+  type: thesis
+  thesis-type: "MSc Applied Research Project"
+  title: "Multimodal Driving Risk Prediction Using Machine Learning on Autonomous Vehicle Data (NVIDIA Physical AI Dataset)"
+  authors:
+    - family-names: Nair
+      given-names: Prasanna Syam Shreyas
+  institution:
+    name: Dublin Business School
+    city: Dublin
+    country: IE
+  year: 2026
+  month: 5

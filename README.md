@@ -17,10 +17,26 @@ saw (detected objects and deep visual embeddings) into a single machine-learning
 
 The work was carried out as an MSc Business Analytics dissertation at Dublin Business School (2026).
 
+## Abstract
+
+Real-world driving data rarely includes crash labels, which makes it hard to train models that recognise
+risky driving. This project builds an explainable, multimodal machine-learning pipeline on the NVIDIA
+PhysicalAI Autonomous Vehicles dataset that combines four kinds of information about each 20-second
+clip: ego-motion telemetry (speed, acceleration, jerk, braking), time-of-day context, YOLOv8 object
+counts, and visual features (basic image statistics plus ResNet-50 and Vision Transformer (ViT-B/16)
+embeddings).
+Because no ground-truth risk labels exist, an Isolation Forest fitted on the training set only creates
+proxy risk labels. A tuned XGBoost classifier reached a test ROC-AUC of **0.9387** (cross-validated
+**0.9455**). SHAP explanations and ablation studies show which kinds of information drive the predictions:
+removing context and time features caused the largest drop in performance, while removing the deep
+visual embeddings slightly improved it, suggesting that simply concatenating high-dimensional image
+features adds noise at this dataset size.
+
 ---
 
 ## Contents
 
+- [Abstract](#abstract)
 - [Research question](#research-question)
 - [The data](#the-data)
 - [Approach](#approach)
@@ -28,9 +44,11 @@ The work was carried out as an MSc Business Analytics dissertation at Dublin Bus
 - [Repository structure](#repository-structure)
 - [Running the notebooks](#running-the-notebooks)
 - [Results](#results)
+- [Limitations](#limitations)
 - [Dissertation and manuscript](#dissertation-and-manuscript)
 - [Authors](#authors)
 - [Citation](#citation)
+- [License](#license)
 - [Acknowledgements](#acknowledgements)
 
 ---
@@ -105,7 +123,10 @@ To get access:
 │   ├── report/                   # Dissertation (PDF)
 │   └── presentation/             # Presentation slides (PPTX)
 ├── manuscript/                   # Manuscript drafts (Word, LaTeX, Overleaf project)
-└── docs/images/                  # Figures used in this README
+├── docs/images/                  # Figures used in this README
+├── requirements.txt              # Python dependencies
+├── CITATION.cff                  # Citation metadata
+└── LICENSE
 ```
 
 ## Running the notebooks
@@ -119,6 +140,12 @@ The notebooks were written for **Google Colab** with a **T4 GPU** runtime and **
 1. Copy the `pipeline_data/` folder structure to a folder in your Google Drive.
 2. In each notebook, set `base_path` to that folder.
 3. Run the notebooks in order (1 → 5). Notebook 0 is optional.
+
+To run outside Colab, install the dependencies first:
+
+```bash
+pip install -r requirements.txt
+```
 
 | Notebook | GPU needed | Notes |
 |---|---|---|
@@ -195,6 +222,19 @@ The original notebook figures (SHAP summary and waterfall plots, tuning and vali
 
 </details>
 
+## Limitations
+
+As set out in the dissertation (section 6.6):
+
+- **Proxy labels, not crash records.** Risk labels come from anomaly detection, so the model learns
+  "unusual driving" as defined by the labelling step rather than measured crash risk.
+- **One dataset.** The framework was tested only on the NVIDIA PhysicalAI dataset, so results may not
+  carry over to other vehicles, sensor set-ups or driving environments.
+- **One frame per clip.** Visual features come from the middle frame of each clip, so motion and
+  changes over time within a clip are not captured.
+- **Simple fusion of image features.** CNN and ViT embeddings are concatenated with the tabular
+  features; the ablation results suggest a better fusion method is needed to get value from them.
+
 ## Dissertation and manuscript
 
 | Document | Location |
@@ -211,7 +251,7 @@ The original notebook figures (SHAP summary and waterfall plots, tuning and vali
 
 ## Citation
 
-To cite this work:
+GitHub's **Cite this repository** button (from [`CITATION.cff`](CITATION.cff)) gives this in APA and BibTeX. To cite the dissertation:
 
 ```bibtex
 @mastersthesis{nair2026multimodal,
@@ -223,6 +263,12 @@ To cite this work:
   month  = {May}
 }
 ```
+
+## License
+
+The code in `notebooks/` and the README graphics are released under the [MIT License](LICENSE).
+The dissertation and manuscript files are © 2026 the authors, all rights reserved. The NVIDIA
+PhysicalAI Autonomous Vehicles dataset is not included and remains under NVIDIA's own licence.
 
 ## Acknowledgements
 

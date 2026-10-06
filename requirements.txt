@@ -1,0 +1,20 @@
+# Python packages used by the notebooks.
+# Tested on Google Colab (Python 3.12, 2026) with a T4 GPU runtime.
+# pandas is pinned because the notebooks install this exact version;
+# the rest worked with the versions available on Colab at the time.
+
+pandas==2.2.2
+numpy
+scipy
+pyarrow
+scikit-learn
+xgboost
+shap
+matplotlib
+joblib
+huggingface_hub
+opencv-python
+pillow
+torch
+torchvision
+ultralytics
