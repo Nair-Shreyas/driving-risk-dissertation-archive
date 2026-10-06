@@ -285,9 +285,9 @@ decisions about real drivers or vehicles.
 
 ## Authors
 
-**Prasanna Syam Shreyas Nair** · MSc Business Analytics, Dublin Business School · [LinkedIn](https://www.linkedin.com/in/psshreyasnair)
+**Prasanna Syam Shreyas Nair** · MSc Business Analytics, Dublin Business School · Ex-JPMorganChase · [LinkedIn](https://www.linkedin.com/in/psshreyasnair)
 
-**Obinna Izima** · Dissertation supervisor and manuscript co-author, Dublin Business School · [LinkedIn](https://www.linkedin.com/in/obinna-c-izima-ph-d-52b75524)
+**Obinna Izima, PhD** · Dissertation supervisor and manuscript co-author, Dublin Business School · [LinkedIn](https://www.linkedin.com/in/obinna-c-izima-ph-d-52b75524)
 
 ## Citation
 
