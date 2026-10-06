@@ -314,6 +314,6 @@ PhysicalAI Autonomous Vehicles dataset is not included and remains under NVIDIA'
 
 ## Acknowledgements
 
-This work uses the NVIDIA PhysicalAI Autonomous Vehicles dataset. We thank Marco Pavone (NVIDIA; Stanford University)
+This work uses the NVIDIA PhysicalAI Autonomous Vehicles dataset. We thank Professor Marco Pavone (NVIDIA; Stanford University)
 for confirming that research built on the dataset may be published, and Dublin Business School for supporting
 the research and its publication.
