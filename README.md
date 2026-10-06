@@ -42,6 +42,7 @@ features adds noise at this dataset size.
 - [Approach](#approach)
 - [Pipeline](#pipeline)
 - [Repository structure](#repository-structure)
+- [Reproduce it](#reproduce-it)
 - [Running the notebooks](#running-the-notebooks)
 - [Results](#results)
 - [Limitations](#limitations)
@@ -112,7 +113,8 @@ To get access:
 
 ```
 .
-├── notebooks/                    # The six pipeline notebooks (run in order)
+├── notebooks/                    # The six pipeline notebooks, as archived
+├── reproducible/                 # Ready-to-run version: 5-minute demo + Colab-ready notebooks
 ├── pipeline_data/                # Folders the notebooks read from and write to
 │   ├── 01_data_preparation/      # Empty: created by Notebook 1
 │   ├── 02_ego_features/          # Empty: created by Notebook 2
@@ -128,6 +130,24 @@ To get access:
 ├── CITATION.cff                  # Citation metadata
 └── LICENSE
 ```
+
+## Reproduce it
+
+<p align="center">
+  <a href="https://colab.research.google.com/github/Nair-Shreyas/driving-risk-dissertation-archive/blob/main/reproducible/demo/demo_pipeline.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open the demo in Colab"/></a>
+</p>
+
+[`reproducible/`](reproducible/) has a ready-to-run version of the pipeline:
+
+- **Demo, about 5 minutes, no NVIDIA access needed.** Open in Colab → *Run all*. It generates synthetic
+  clips and runs the full modelling pipeline (proxy labels, baselines, tuned XGBoost, cross-validation, SHAP,
+  ablation) so you can see every step of the method.
+- **Full study.** Five notebooks with one settings cell each and an "Open in Colab" button, for anyone
+  with access to the NVIDIA dataset.
+
+The reproducible notebooks are version 2 of the pipeline: an optimised, cleaner version of the archived
+notebooks that is more robust to updates in the NVIDIA dataset and includes a few bug fixes
+([`CHANGES.md`](reproducible/CHANGES.md)).
 
 ## Running the notebooks
 
