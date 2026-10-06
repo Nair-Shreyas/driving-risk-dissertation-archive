@@ -53,9 +53,9 @@ derived from the data itself, and **which kinds of information** drive those pre
 </p>
 
 <p align="center">
-  <img src="https://cdn-uploads.huggingface.co/production/uploads/667f467e563b0640e37fca79/t_yqQTwuTRFiiK8--mzm3.gif" alt="Mosaic of driving camera clips from the NVIDIA PhysicalAI Autonomous Vehicles dataset" width="100%">
-  <br>
-  <sub>Preview © NVIDIA, shown from the <a href="https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles">official dataset card</a>. No dataset files are stored in this repository.</sub>
+  <a href="https://cdn-uploads.huggingface.co/production/uploads/667f467e563b0640e37fca79/t_yqQTwuTRFiiK8--mzm3.gif">
+    <img src="docs/images/footage_button.png" alt="View sample footage on Hugging Face" width="380">
+  </a>
 </p>
 
 This project uses the [NVIDIA PhysicalAI Autonomous Vehicles](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles) dataset. Access is gated: sign in to Hugging Face, accept NVIDIA's licence on the dataset page, then run the notebooks to download and process the clips yourself. The [NVIDIA Autonomous Vehicle Dataset License](https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles/blob/main/LICENSE.pdf) does not allow the dataset, or anything derived from it, to be redistributed, so camera frames, per-clip tables and the trained model are not included here.
