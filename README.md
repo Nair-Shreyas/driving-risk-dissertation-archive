@@ -130,9 +130,72 @@ The notebooks were written for **Google Colab** with a **T4 GPU** runtime and **
 
 ## Results
 
-Results will be summarised here when the manuscript is finalised. The result tables and figures produced
-by the pipeline are in [`pipeline_data/05_modelling_outputs/`](pipeline_data/05_modelling_outputs/). The
-trained model is not included because it is derived from the dataset.
+Results as reported in the submitted dissertation. Every value comes from the result files in
+[`pipeline_data/05_modelling_outputs/`](pipeline_data/05_modelling_outputs/).
+
+<p align="center">
+  <img src="docs/images/results_headline.png" alt="Tuned XGBoost: cross-validated ROC-AUC 0.9455, test ROC-AUC 0.9387, F1 high-risk 0.712, 48 features" width="100%"/>
+</p>
+
+<p align="center">
+  <img src="docs/images/results_models.png" alt="Model comparison by test ROC-AUC" width="100%"/>
+</p>
+
+<p align="center">
+  <img src="docs/images/results_ablation.png" alt="Ablation study: change in test ROC-AUC when feature groups are removed" width="100%"/>
+</p>
+
+<p align="center">
+  <img src="docs/images/results_feature_groups.png" alt="Feature-group importance by mean SHAP value and gain" width="100%"/>
+</p>
+
+### Key findings
+
+- Multimodal data identified elevated-risk clips well above the baseline (test ROC-AUC 0.9387 vs 0.5).
+- Removing context / time features caused the largest single-group drop in ROC-AUC (−0.079).
+- Ego-motion / behaviour features had the highest SHAP and gain importance.
+- Removing the CNN and ViT embeddings slightly *improved* performance (+0.017), suggesting that
+  simple concatenation of high-dimensional visual embeddings adds noise at this dataset size.
+- Random Forest achieved the highest test ROC-AUC (0.971) of the models compared.
+
+<details>
+<summary><b>Result tables</b></summary>
+
+#### Model comparison (held-out test set)
+
+| Model | ROC-AUC | Accuracy (t = 0.4) | F1 high risk (t = 0.4) |
+|---|---:|---:|---:|
+| Dummy classifier | 0.500 | 0.801 | 0.000 |
+| Logistic Regression | 0.879 | 0.851 | 0.618 |
+| Random Forest | 0.971 | 0.936 | 0.836 |
+| XGBoost — full multimodal | 0.939 | 0.879 | 0.712 |
+| XGBoost — without CNN + ViT embeddings | 0.955 | 0.894 | 0.754 |
+
+#### Ablation study
+
+| Configuration | Features | ROC-AUC | Change vs full model |
+|---|---:|---:|---:|
+| A — Full model | 48 | 0.9387 | — |
+| B — No CNN + ViT embeddings | 28 | 0.9554 | +0.0167 |
+| C — No context / time features | 43 | 0.8597 | −0.0790 |
+| D — Behavioural features only | 8 | 0.8369 | −0.1018 |
+
+#### Feature-group importance
+
+| Feature group | Mean \|SHAP\| | Gain importance |
+|---|---:|---:|
+| Ego / behaviour | 3.957 | 0.281 |
+| Context / time | 2.025 | 0.237 |
+| ViT embeddings | 1.017 | 0.144 |
+| CNN embeddings | 0.991 | 0.138 |
+| Engineered | 0.708 | 0.096 |
+| YOLO object detection | 0.282 | 0.088 |
+| Basic visual (brightness, contrast) | 0.074 | 0.018 |
+
+The original notebook figures (SHAP summary and waterfall plots, tuning and validation charts) are in
+[`pipeline_data/05_modelling_outputs/`](pipeline_data/05_modelling_outputs/).
+
+</details>
 
 ## Dissertation and manuscript
 
