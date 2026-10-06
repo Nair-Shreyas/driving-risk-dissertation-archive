@@ -135,7 +135,7 @@ To get access:
 ## Reproduce it
 
 <p align="center">
-  <a href="https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/demo/demo_pipeline.ipynb"><img src="https://img.shields.io/badge/Open_in_Colab-F9AB00?style=flat-square&logo=googlecolab&logoColor=white" alt="Open the demo in Colab"/></a>
+  <a href="https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/demo/demo_pipeline.ipynb"><img src="https://img.shields.io/badge/Open_in-Colab-F9AB00?style=flat-square&logo=googlecolab&logoColor=white" alt="Open the demo in Colab"/></a>
 </p>
 
 [`reproducible/`](reproducible/) has a ready-to-run version of the pipeline:
