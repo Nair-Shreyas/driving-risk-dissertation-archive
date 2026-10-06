@@ -58,8 +58,8 @@ features adds noise at this dataset size.
 ## Research question
 
 Real driving datasets rarely come with crash or near-miss labels, which makes supervised risk prediction
-difficult. This project asks whether a **multimodal framework** — combining vehicle telemetry, temporal
-context and visual scene information — can learn a useful notion of driving risk from **proxy labels**
+difficult. This project asks whether a **multimodal framework**, combining vehicle telemetry, temporal
+context and visual scene information, can learn a useful notion of driving risk from **proxy labels**
 derived from the data itself, and **which kinds of information** drive those predictions.
 
 ## The data
@@ -103,7 +103,7 @@ To get access:
 
 | # | Notebook | Purpose | Main output |
 |---|---|---|---|
-| 0 | [`0_exploratory_dataset_study.ipynb`](notebooks/0_exploratory_dataset_study.ipynb) | Explore the dataset's structure and metadata | — |
+| 0 | [`0_exploratory_dataset_study.ipynb`](notebooks/0_exploratory_dataset_study.ipynb) | Explore the dataset's structure and metadata | - |
 | 1 | [`1_data_preparation.ipynb`](notebooks/1_data_preparation.ipynb) | Filter, cluster and sample clips | `pipeline_data/01_data_preparation/prepared_dataset_2000.csv` |
 | 2 | [`2_ego_motion_features.ipynb`](notebooks/2_ego_motion_features.ipynb) | Compute speed, acceleration, jerk and braking features | `pipeline_data/02_ego_features/ego_features_2000.csv` |
 | 3 | [`3_visual_features.ipynb`](notebooks/3_visual_features.ipynb) | Extract frames; YOLOv8, ResNet-50, ViT-B/16, brightness/contrast | `pipeline_data/03_visual_features/visual_features_final.csv` |
@@ -220,17 +220,17 @@ Results from the dissertation. Every value comes from the result files in
 | Dummy classifier | 0.500 | 0.801 | 0.000 |
 | Logistic Regression | 0.879 | 0.851 | 0.618 |
 | Random Forest | 0.971 | 0.936 | 0.836 |
-| XGBoost — full multimodal | 0.939 | 0.879 | 0.712 |
-| XGBoost — without CNN + ViT embeddings | 0.955 | 0.894 | 0.754 |
+| XGBoost (full multimodal) | 0.939 | 0.879 | 0.712 |
+| XGBoost (without CNN + ViT embeddings) | 0.955 | 0.894 | 0.754 |
 
 #### Ablation study
 
 | Configuration | Features | ROC-AUC | Change vs full model |
 |---|---:|---:|---:|
-| A — Full model | 48 | 0.9387 | — |
-| B — No CNN + ViT embeddings | 28 | 0.9554 | +0.0167 |
-| C — No context / time features | 43 | 0.8597 | −0.0790 |
-| D — Behavioural features only | 8 | 0.8369 | −0.1018 |
+| A: Full model | 48 | 0.9387 | baseline |
+| B: No CNN + ViT embeddings | 28 | 0.9554 | +0.0167 |
+| C: No context / time features | 43 | 0.8597 | −0.0790 |
+| D: Behavioural features only | 8 | 0.8369 | −0.1018 |
 
 #### Feature-group importance
 
@@ -281,13 +281,13 @@ decisions about real drivers or vehicles.
 |---|---|
 | MSc dissertation (Dublin Business School, May 2026) | [`dissertation/report/`](dissertation/report/) |
 | Dissertation presentation | [`dissertation/presentation/`](dissertation/presentation/) |
-| Manuscript — Nair & Izima | [`manuscript/`](manuscript/) |
+| Manuscript (Nair & Izima) | [`manuscript/`](manuscript/) |
 
 ## Authors
 
-**Prasanna Syam Shreyas Nair** — MSc Business Analytics, Dublin Business School · [LinkedIn](https://www.linkedin.com/in/psshreyasnair)
+**Prasanna Syam Shreyas Nair** · MSc Business Analytics, Dublin Business School · [LinkedIn](https://www.linkedin.com/in/psshreyasnair)
 
-**Obinna Izima** — Dissertation supervisor and manuscript co-author, Dublin Business School · [LinkedIn](https://www.linkedin.com/in/obinna-c-izima-ph-d-52b75524)
+**Obinna Izima** · Dissertation supervisor and manuscript co-author, Dublin Business School · [LinkedIn](https://www.linkedin.com/in/obinna-c-izima-ph-d-52b75524)
 
 ## Citation
 

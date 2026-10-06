@@ -4,15 +4,15 @@ Two ways to run this work, from a 5-minute demo to the full study.
 
 | | What you need | Time |
 |---|---|---|
-| **Option A — Demo** | Nothing — a browser and a Google account | ~5 minutes |
-| **Option B — Full study** | Hugging Face account with NVIDIA dataset access, Google Drive, Colab GPU | Several hours |
+| **Option A: Demo** | Nothing but a browser and a Google account | ~5 minutes |
+| **Option B: Full study** | Hugging Face account with NVIDIA dataset access, Google Drive, Colab GPU | Several hours |
 
 The code is version 2 of the pipeline: optimised, more robust to dataset updates and cleaner than the
 archived notebooks, with a few bug fixes. See [`CHANGES.md`](CHANGES.md).
 
 ---
 
-## Option A — Demo (no NVIDIA data needed)
+## Option A: Demo (no NVIDIA data needed)
 
 [![Open In Colab](https://img.shields.io/badge/Open_in-Google_Colab-F9AB00?style=flat-square&logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/demo/demo_pipeline.ipynb)
 
@@ -35,7 +35,7 @@ jupyter notebook reproducible/demo/demo_pipeline.ipynb
 
 ---
 
-## Option B — Full study on the NVIDIA dataset
+## Option B: Full study on the NVIDIA dataset
 
 | # | Notebook | Open |
 |---|---|---|

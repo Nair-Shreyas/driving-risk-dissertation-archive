@@ -83,7 +83,7 @@ def make_demo_inputs(out_dir, n_clips=600, seed=42):
         os.makedirs(os.path.dirname(p), exist_ok=True)
         df.to_csv(p, index=False)
         print(f"wrote {rel}: {df.shape[0]} rows x {df.shape[1]} columns")
-    print("Synthetic inputs ready — values are invented, for demonstration only.")
+    print("Synthetic inputs ready - values are invented, for demonstration only.")
 
 
 if __name__ == "__main__":
