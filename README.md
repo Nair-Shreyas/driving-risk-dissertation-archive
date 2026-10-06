@@ -3,10 +3,9 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Manuscript_in_preparation-c9440c?style=flat-square"/>
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/Runs_on-Google_Colab-F9AB00?style=flat-square&logo=googlecolab&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Data-NVIDIA_PhysicalAI_AV-76B900?style=flat-square&logo=nvidia&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Data-NVIDIA_PhysicalAI_AV-76B900?style=flat-square"/>
 </p>
 
 # Multimodal Driving Risk Prediction Using Machine Learning on Autonomous Vehicle Data
@@ -16,8 +15,7 @@ a research project on **predicting driving risk from autonomous vehicle recordin
 the vehicle moved (ego-motion), when it was driving (time-of-day context), and what the front camera
 saw (detected objects and deep visual embeddings) into a single machine-learning pipeline.
 
-The work was carried out as an MSc Business Analytics dissertation at Dublin Business School (2026) and is
-being developed into a journal manuscript.
+The work was carried out as an MSc Business Analytics dissertation at Dublin Business School (2026).
 
 ---
 
@@ -130,7 +128,7 @@ The notebooks were written for **Google Colab** with a **T4 GPU** runtime and **
 
 ## Results
 
-Results as reported in the submitted dissertation. Every value comes from the result files in
+Results from the dissertation. Every value comes from the result files in
 [`pipeline_data/05_modelling_outputs/`](pipeline_data/05_modelling_outputs/).
 
 <p align="center">
@@ -203,7 +201,7 @@ The original notebook figures (SHAP summary and waterfall plots, tuning and vali
 |---|---|
 | MSc dissertation (Dublin Business School, May 2026) | [`dissertation/report/`](dissertation/report/) |
 | Dissertation presentation | [`dissertation/presentation/`](dissertation/presentation/) |
-| Manuscript drafts — Nair & Izima (in preparation) | [`manuscript/`](manuscript/) |
+| Manuscript — Nair & Izima | [`manuscript/`](manuscript/) |
 
 ## Authors
 
@@ -213,7 +211,7 @@ The original notebook figures (SHAP summary and waterfall plots, tuning and vali
 
 ## Citation
 
-Citation details for the published article will be added here. To cite the dissertation:
+To cite this work:
 
 ```bibtex
 @mastersthesis{nair2026multimodal,
