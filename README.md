@@ -46,6 +46,7 @@ features adds noise at this dataset size.
 - [Running the notebooks](#running-the-notebooks)
 - [Results](#results)
 - [Limitations](#limitations)
+- [Responsible use](#responsible-use)
 - [Dissertation and manuscript](#dissertation-and-manuscript)
 - [Authors](#authors)
 - [Citation](#citation)
@@ -144,6 +145,12 @@ To get access:
   ablation) so you can see every step of the method.
 - **Full study.** Five notebooks with one settings cell each and an "Open in Colab" button, for anyone
   with access to the NVIDIA dataset.
+
+<p align="center">
+  <a href="https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/demo/demo_pipeline.ipynb">
+    <img src="docs/images/demo_preview.png" alt="Charts produced by the demo: SHAP summary and waterfall, threshold selection and ablation study (synthetic data)" width="100%"/>
+  </a>
+</p>
 
 The reproducible notebooks are version 2 of the pipeline: an optimised, cleaner version of the archived
 notebooks that is more robust to updates in the NVIDIA dataset and includes a few bug fixes
@@ -254,6 +261,19 @@ As set out in the dissertation (section 6.6):
   changes over time within a clip are not captured.
 - **Simple fusion of image features.** CNN and ViT embeddings are concatenated with the tabular
   features; the ablation results suggest a better fusion method is needed to get value from them.
+
+## Responsible use
+
+This work is intended for research on driving safety. In line with the NVIDIA Autonomous Vehicle Dataset
+License Agreement (sections 4.1, 4.4 and 4.5), the code and models must not be used:
+
+- for surveillance or to monitor the behaviour of individuals;
+- to enforce traffic laws or support law enforcement;
+- to identify, track or profile people or vehicles (including through licence plates);
+- to infer sensitive attributes such as race, gender, age or health, or for biometric or emotion recognition.
+
+The risk labels are statistical proxies, not measured crash risk, so predictions should not be used to make
+decisions about real drivers or vehicles.
 
 ## Dissertation and manuscript
 
