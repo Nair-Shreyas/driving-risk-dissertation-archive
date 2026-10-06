@@ -148,7 +148,7 @@ To get access:
 
 <p align="center">
   <a href="https://colab.research.google.com/github/Nair-Shreyas/multimodal-driving-risk-prediction/blob/main/reproducible/demo/demo_pipeline.ipynb">
-    <img src="docs/images/demo_preview.png" alt="Charts produced by the demo: SHAP summary and waterfall, threshold selection and ablation study (synthetic data)" width="100%"/>
+    <img src="docs/images/demo_preview.png" alt="Charts produced by the demo: model comparison, ablation study, SHAP feature-group importance and threshold selection (synthetic data)" width="100%"/>
   </a>
 </p>
 
